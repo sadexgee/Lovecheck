@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Hub - Love Calculator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; min-height: 100vh; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #fee2e2 100%); }
+        
+        /* Navigation */
+        nav { background: linear-gradient(to right, #db2777, #dc2626); color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .nav-container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; height: 4rem; }
+        .nav-logo { display: flex; align-items: center; gap: 0.5rem; font-weight: bold; font-size: 1.25rem; }
+        .nav-links { display: none; gap: 1.5rem; }
+        .nav-links button { background: none; border: none; color: white; cursor: pointer; font-size: 1rem; padding: 0.5rem 1rem; transition: color 0.3s; }
+        .nav-links button:hover { color: #fce7f3; }
+        .menu-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; display: block; }
+        .mobile-menu { display: none; padding-bottom: 1rem; }
+        .mobile-menu.active { display: block; }
+        .mobile-menu button { display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; background: none; border: none; color: white; cursor: pointer; border-radius: 0.5rem; transition: background 0.3s; }
+        .mobile-menu button:hover { background: rgba(255,255,255,0.1); }
+        
+        @media (min-width: 768px) {
+            .nav-links { display: flex; }
+            .menu-btn { display: none; }
+        }
+        
+        /* Container */
+        .container { max-width: 1280px; margin: 0 auto; padding: 4rem 1rem; }
+        .container-sm { max-width: 896px; margin: 0 auto; padding: 3rem 1rem; }
+        
+        /* Typography */
+        h1 { font-size: 3.75rem; font-weight: bold; text-align: center; margin-bottom: 1rem; background: linear-gradient(to right, #db2777, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        h2 { font-size: 1.875rem; font-weight: bold; margin-bottom: 0.5rem; }
+        h3 { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.75rem; }
+        p { color: #4b5563; line-height: 1.75; }
+        
+        /* Cards */
+        .card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 15px rgba(0,0,0,0.1); padding: 2rem; transition: all 0.3s; }
+        .card:hover { box-shadow: 0 20px 25px rgba(0,0,0,0.15); transform: scale(1.05); }
+        
+        /* Grid */
+        .grid { display: grid; gap: 2rem; }
+        .grid-2 { grid-template-columns: 1fr; }
+        .grid-3 { grid-template-columns: 1fr; }
+        @media (min-width: 768px) {
+            .grid-2 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* Buttons */
+        .btn { width: 100%; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(to right, #ec4899, #ef4444); color: white; }
+        .btn-primary:hover { background: linear-gradient(to right, #db2777, #dc2626); }
+        .btn-secondary { background: linear-gradient(to right, #a855f7, #6366f1); color: white; }
+        .btn-secondary:hover { background: linear-gradient(to right, #9333ea, #4f46e5); }
+        .btn-flames { background: linear-gradient(to right, #f97316, #ef4444); color: white; }
+        .btn-astro { background: linear-gradient(to right, #a855f7, #6366f1); color: white; }
+        .btn-tab { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; border: none; cursor: pointer; background: white; color: #4b5563; transition: all 0.3s; }
+        .btn-tab:hover { background: #f3f4f6; }
+        .btn-tab.active-flames { background: linear-gradient(to right, #f97316, #ef4444); color: white; }
+        .btn-tab.active-astro { background: linear-gradient(to right, #a855f7, #6366f1); color: white; }
+        
+        /* Inputs */
+        input[type="text"], input[type="date"] { width: 100%; padding: 0.75rem 1rem; border: 2px solid #fce7f3; border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.3s; }
+        input[type="text"]:focus, input[type="date"]:focus { outline: none; border-color: #ec4899; }
+        input.flames-input { border-color: #fed7aa; }
+        input.flames-input:focus { border-color: #f97316; }
+        input.astro-input { border-color: #e9d5ff; }
+        input.astro-input:focus { border-color: #a855f7; }
+        label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; margin-top: 1rem; }
+        
+        /* Result boxes */
+        .result-box { margin-top: 1.5rem; padding: 1.5rem; border-radius: 1rem; text-align: center; animation: fadeIn 0.5s; }
+        .result-flames { background: linear-gradient(to right, #ffedd5, #fee2e2); }
+        .result-astro { background: linear-gradient(to right, #f3e8ff, #e0e7ff); }
+        
+        /* Progress bars */
+        .progress-bar { width: 100%; height: 1rem; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin-bottom: 1.5rem; }
+        .progress-fill { height: 100%; background: linear-gradient(to right, #a855f7, #6366f1); border-radius: 9999px; transition: width 0.3s; }
+        .progress-item { margin-bottom: 0.75rem; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; }
+        .progress-mini { width: 100%; height: 0.5rem; background: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+        .progress-emotional { background: #ec4899; height: 100%; border-radius: 9999px; }
+        .progress-mental { background: #3b82f6; height: 100%; border-radius: 9999px; }
+        .progress-spiritual { background: #a855f7; height: 100%; border-radius: 9999px; }
+        .progress-physical { background: #ef4444; height: 100%; border-radius: 9999px; }
+        
+        /* Footer */
+        footer { background: linear-gradient(to right, #db2777, #dc2626); color: white; padding: 2rem 0; margin-top: 3rem; }
+        .footer-content { max-width: 1280px; margin: 0 auto; padding: 0 1rem; text-align: center; }
+        .footer-divider { border-top: 1px solid rgba(255,255,255,0.3); margin: 1rem 0; padding-top: 1rem; }
+        
+        /* Utilities */
+        .text-center { text-align: center; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .flex { display: flex; }
+        .flex-wrap { flex-wrap: wrap; }
+        .gap-4 { gap: 1rem; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        
+        /* Text sizes */
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .text-5xl { font-size: 3rem; }
+        .text-6xl { font-size: 3.75rem; }
+        
+        /* Colors */
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-700 { color: #374151; }
+        .text-pink-600 { color: #db2777; }
+        .text-purple-600 { color: #9333ea; }
+        .text-purple-700 { color: #7e22ce; }
+        .text-orange-600 { color: #ea580c; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .italic { font-style: italic; }
+        .opacity-80 { opacity: 0.8; }
+        
+        @media (max-width: 767px) {
+            h1 { font-size: 2.5rem; }
+            .container { padding: 2rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="nav-content">
+                <div class="nav-logo">❤️ <span>Love Hub</span></div>
+                <div class="nav-links">
+                    <button onclick="showPage('home')">Home</button>
+                    <button onclick="showPage('calculator')">Calculator</button>
+                    <button onclick="showPage('story')">Stories</button>
+                    <button onclick="showPage('quotes')">Quotes</button>
+                </div>
+                <button class="menu-btn" onclick="toggleMenu()">☰</button>
+            </div>
+            <div id="menu" class="mobile-menu">
+                <button onclick="showPage('home'); toggleMenu();">Home</button>
+                <button onclick="showPage('calculator'); toggleMenu();">Calculator</button>
+                <button onclick="showPage('story'); toggleMenu();">Stories</button>
+                <button onclick="showPage('quotes'); toggleMenu();">Quotes</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div id="content"></div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="mb-4">
+                <p class="text-lg font-semibold">❤️ Love Hub - Where Hearts Connect</p>
+            </div>
+            <div class="footer-divider">
+                <p class="text-sm mb-2">Developed with ❤️ by</p>
+                <p class="font-bold text-lg">Sadiq Muhammad Sadis</p>
+                <p class="text-sm mt-1">📱 +2347040632821</p>
+            </div>
+            <p class="text-xs mt-4 opacity-80">© 2024 Love Hub. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        function showPage(p) {
+            const pages = {
+                home: `<div class="container fade-in">
+                    <div class="text-center mb-12">
+                        <h1>Welcome to Love Hub</h1>
+                        <p class="text-xl text-gray-700 mb-2">Discover the magic of love through ancient wisdom and modern fun</p>
+                        <p class="text-gray-600">✨ Where hearts connect and destinies align ✨</p>
+                    </div>
+                    <div class="grid grid-2 mb-12">
+                        <div class="card">
+                            <div class="text-center text-5xl mb-4">🔥</div>
+                            <h3 class="text-2xl text-pink-600 text-center">FLAMES Calculator</h3>
+                            <p class="text-center mb-4">The classic school game! Cross out matching letters and discover your relationship destiny.</p>
+                            <button onclick="showPage('calculator')" class="btn btn-primary">Try FLAMES</button>
+                        </div>
+                        <div class="card">
+                            <div class="text-center text-5xl mb-4">⭐</div>
+                            <h3 class="text-2xl text-purple-600 text-center">Astrology Calculator</h3>
+                            <p class="text-center mb-4">Based on Vedic astrology! Calculate deep compatibility using ancient Graha Maitri principles.</p>
+                            <button onclick="showPage('calculator')" class="btn btn-secondary">Check Astrology</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-3">
+                        <div class="card text-center">
+                            <div class="text-4xl mb-3">📖</div>
+                            <h3>Love Stories</h3>
+                            <p class="text-sm">Read inspiring tales of love and romance</p>
+                        </div>
+                        <div class="card text-center">
+                            <div class="text-4xl mb-3">💬</div>
+                            <h3>Love Quotes</h3>
+                            <p class="text-sm">Beautiful words to express your feelings</p>
+                        </div>
+                        <div class="card text-center">
+                            <div class="text-4xl mb-3">❤️</div>
+                            <h3>Love Advice</h3>
+                            <p class="text-sm">Tips for nurturing lasting relationships</p>
+                        </div>
+                    </div>
+                </div>`,
+                calculator: `<div class="container-sm fade-in">
+                    <h1 class="mb-8">Love Calculators</h1>
+                    <div class="flex flex-wrap gap-4 justify-center mb-8">
+                        <button onclick="switchCalc('flames')" id="fb" class="btn-tab active-flames">🔥 FLAMES</button>
+                        <button onclick="switchCalc('astro')" id="ab" class="btn-tab">⭐ Astrology</button>
+                    </div>
+                    <div id="calc"></div>
+                </div>`,
+                story: `<div class="container-sm fade-in">
+                    <h1 class="mb-4">Love Stories</h1>
+                    <p class="text-center text-gray-600 mb-12">Tales of love that inspire us all</p>
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="text-5xl mb-3">📖</div>
+                            <h3 class="text-pink-600">The Notebook Love</h3>
+                            <p>Like Noah and Allie, some love stories transcend time. Their love wasn't perfect, but it was real. Through every challenge, they chose each other, proving that true love always finds its way back home.</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-5xl mb-3">✈️</div>
+                            <h3 class="text-pink-600">Distance Can't Break Us</h3>
+                            <p>Sarah and Ahmed met online, separated by oceans. Every timezone difference made their love stronger. After 3 years, they finally met at the airport. That hug was worth every lonely night.</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-5xl mb-3">🌅</div>
+                            <h3 class="text-pink-600">Second Chance Romance</h3>
+                            <p>Maya and Raj were high school sweethearts who drifted apart. 15 years later, at their reunion, one look was all it took. Sometimes love isn't about timing, it's about the right person at the right time.</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-5xl mb-3">🤟</div>
+                            <h3 class="text-pink-600">Love Without Words</h3>
+                            <p>David learned sign language for Emma. She was deaf, but he heard her louder than anyone. Their love proved that the heart speaks a language everyone can understand.</p>
+                        </div>
+                    </div>
+                </div>`,
+                quotes: `<div class="container-sm fade-in">
+                    <h1 class="mb-4">Love Quotes</h1>
+                    <p class="text-center text-gray-600 mb-12">Words that touch the heart</p>
+                    <div class="space-y-6">
+                        <div class="card">
+                            <div class="text-3xl mb-3" style="color: #f9a8d4;">❝</div>
+                            <p class="text-lg text-gray-700 italic mb-3">"Love is not about how many days, months, or years you have been together. It's about how much you love each other every single day."</p>
+                            <p class="text-pink-600 font-semibold" style="text-align: right;">— Unknown</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-3xl mb-3" style="color: #f9a8d4;">❝</div>
+                            <p class="text-lg text-gray-700 italic mb-3">"The best thing to hold onto in life is each other."</p>
+                            <p class="text-pink-600 font-semibold" style="text-align: right;">— Audrey Hepburn</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-3xl mb-3" style="color: #f9a8d4;">❝</div>
+                            <p class="text-lg text-gray-700 italic mb-3">"Love is composed of a single soul inhabiting two bodies."</p>
+                            <p class="text-pink-600 font-semibold" style="text-align: right;">— Aristotle</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-3xl mb-3" style="color: #f9a8d4;">❝</div>
+                            <p class="text-lg text-gray-700 italic mb-3">"You know you're in love when you can't fall asleep because reality is finally better than your dreams."</p>
+                            <p class="text-pink-600 font-semibold" style="text-align: right;">— Dr. Seuss</p>
+                        </div>
+                        <div class="card">
+                            <div class="text-3xl mb-3" style="color: #f9a8d4;">❝</div>
+                            <p class="text-lg text-gray-700 italic mb-3">"Love recognizes no barriers. It jumps hurdles, leaps fences, penetrates walls to arrive at its destination full of hope."</p>
+                            <p class="text-pink-600 font-semibold" style="text-align: right;">— Maya Angelou</p>
+                        </div>
+                    </div>
+                </div>`
+            };
+            document.getElementById('content').innerHTML = pages[p];
+            if (p === 'calculator') switchCalc('flames');
+            window.scrollTo(0, 0);
+        }
+        
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('active');
+        }
+        
+        function switchCalc(t) {
+            const calcs = {
+                flames: `<div class="card">
+                    <div class="text-center mb-6">
+                        <div class="text-5xl mb-3">🔥</div>
+                        <h2 class="text-3xl text-orange-600">FLAMES Calculator</h2>
+                        <p class="text-gray-600">The classic school game of love!</p>
+                    </div>
+                    <div class="space-y-4 mb-6">
+                        <input type="text" id="fn1" placeholder="Enter first name" class="flames-input">
+                        <div class="text-center text-2xl">❤️</div>
+                        <input type="text" id="fn2" placeholder="Enter second name" class="flames-input">
+                    </div>
+                    <button onclick="calcFlames()" class="btn btn-flames">Calculate FLAMES 🔥</button>
+                    <div id="fr"></div>
+                </div>`,
+                astro: `<div class="card">
+                    <div class="text-center mb-6">
+                        <div class="text-5xl mb-3">⭐</div>
+                        <h2 class="text-3xl text-purple-600">Astrology Calculator</h2>
+                        <p class="text-gray-600">Based on Vedic astrology principles</p>
+                    </div>
+                    <div>
+                        <label>First Person's Name</label>
+                        <input type="text" id="an1" placeholder="Enter name" class="astro-input">
+                        <label>Date of Birth</label>
+                        <input type="date" id="ad1" class="astro-input">
+                        <div class="text-center text-2xl mt-4 mb-4">💜</div>
+                        <label>Second Person's Name</label>
+                        <input type="text" id="an2" placeholder="Enter name" class="astro-input">
+                        <label>Date of Birth</label>
+                        <input type="date" id="ad2" class="astro-input">
+                    </div>
+                    <button onclick="calcAstro()" class="btn btn-astro mt-6">Calculate Compatibility ⭐</button>
+                    <div id="ar"></div>
+                </div>`
+            };
+            document.getElementById('calc').innerHTML = calcs[t];
+            document.getElementById('fb').className = t === 'flames' ? 'btn-tab active-flames' : 'btn-tab';
+            document.getElementById('ab').className = t === 'astro' ? 'btn-tab active-astro' : 'btn-tab';
+        }
+        
+        function calcFlames() {
+            const n1 = document.getElementById('fn1').value.trim();
+            const n2 = document.getElementById('fn2').value.trim();
+            const r = document.getElementById('fr');
+            if (!n1 || !n2) { alert('Please enter both names!'); return; }
+            r.innerHTML = '<div class="text-center text-gray-600 mt-6">Calculating...</div>';
+            setTimeout(() => {
+                let a = n1.toLowerCase().replace(/\s/g, '');
+                let b = n2.toLowerCase().replace(/\s/g, '');
+                for (let c of a.split('')) {
+                    if (b.includes(c)) {
+                        a = a.replace(c, '');
+                        b = b.replace(c, '');
+                    }
+                }
+                const count = a.length + b.length;
+                const flames = ['Friends', 'Lovers', 'Affectionate', 'Marriage', 'Enemies', 'Soulmates'];
+                const res = flames[(count - 1) % flames.length];
+                const emojis = {'Friends':'🤝','Lovers':'💕','Affectionate':'🥰','Marriage':'💍','Enemies':'😠','Soulmates':'✨'};
+                r.innerHTML = `<div class="result-box result-flames fade-in">
+                    <div class="text-6xl mb-3">${emojis[res]}</div>
+                    <div class="text-3xl font-bold text-orange-600 mb-2">${res}</div>
+                    <p class="text-gray-700">${n1} & ${n2}</p>
+                    <p class="text-sm text-gray-600 mt-2">Letter count: ${count}</p>
+                </div>`;
+            }, 1500);
+        }
+        
+        function calcAstro() {
+            const n1 = document.getElementById('an1').value.trim();
+            const n2 = document.getElementById('an2').value.trim();
+            const d1 = document.getElementById('ad1').value;
+            const d2 = document.getElementById('ad2').value;
+            const r = document.getElementById('ar');
+            if (!n1 || !n2 || !d1 || !d2) { alert('Please fill in all fields!'); return; }
+            r.innerHTML = '<div class="text-center text-gray-600 mt-6">Analyzing stars...</div>';
+            setTimeout(() => {
+                const data = n1 + n2 + d1 + d2;
+                let h = 0;
+                for (let i = 0; i < data.length; i++) h = ((h << 5) - h) + data.charCodeAt(i);
+                const score = Math.abs(h % 40) + 50;
+                const em = Math.abs(h % 25) + 70;
+                const me = Math.abs((h * 2) % 25) + 65;
+                const sp = Math.abs((h * 3) % 25) + 75;
+                const ph = Math.abs((h * 4) % 25) + 70;
+                r.innerHTML = `<div class="fade-in mt-6">
+                    <div class="text-center mb-4">
+                        <div class="text-5xl font-bold text-purple-600">${score}%</div>
+                        <p class="text-gray-600 text-sm mt-1">Overall Compatibility</p>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${score}%"></div>
+                    </div>
+                    <div class="result-box result-astro">
+                        <h3 class="font-bold text-lg mb-4 text-center text-purple-700">Compatibility Breakdown</h3>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>💕 Emotional Bond</span>
+                                <span class="text-purple-600 font-bold">${em}%</span>
+                            </div>
+                            <div class="progress-mini">
+                                <div class="progress-emotional" style="width:${em}%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>🧠 Mental Connection</span>
+                                <span class="text-purple-600 font-bold">${me}%</span>
+                            </div>
+                            <div class="progress-mini">
+                                <div class="progress-mental" style="width:${me}%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>✨ Spiritual Harmony</span>
+                                <span class="text-purple-600 font-bold">${sp}%</span>
+                            </div>
+                            <div class="progress-mini">
+                                <div class="progress-spiritual" style="width:${sp}%"></div>
+                            </div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>❤️ Physical Attraction</span>
+                                <span class="text-purple-600 font-bold">${ph}%</span>
+                            </div>
+                            <div class="progress-mini">
+                                <div class="progress-physical" style="width:${ph}%"></div>
+                            </div>
+                        </div>
+                        <p class="text-center text-gray-700 mt-4">${n1} & ${n2}</p>
+                    </div>
+                </div>`;
+            }, 2000);
+        }
+        
+        showPage('home');
+    </script>
+</body>
+</html>
